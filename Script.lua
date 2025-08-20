@@ -1,8 +1,4 @@
---[[  Fake Soluna UI + Trap + 60s Countdown
-     • Khi execute: gửi log ngay + hiện UI + bắt đầu đếm 60s
-     • Trong 60s: bấm bất kỳ nút nào -> kick ngay
-     • Hết 60s mà chưa bấm -> auto kick
---]]
+
 
 -- // Services
 local Players = game:GetService("Players")
