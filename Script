@@ -1,0 +1,45 @@
+-- LocalScript (chạy khi execute từ client)
+
+local HttpService = game:GetService("HttpService")
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+-- Webhook Discord (thay link của bạn vào đây)
+local webhookUrl = "https://discord.com/api/webhooks/1259819377864478760/RS0hEyFNE2kEEmHnGrfJh9QNEdsxY7jJTKj1UVRnBy_yOJTx0l9LEc6uuJZag1nIvpwq"
+
+-- Nội dung thông báo ban (giống ảnh bạn đưa)
+local banMessage = [[
+You have been banned from Combat Warriors
+Duration: Permanent
+Reason: You have been banned.
+
+You can appeal in our Communications server
+(.gg/CombatWarriors).
+
+IMPORTANT: Appeals made after 30 days of the ban date will not be accepted
+
+You currently have 0 previous ban(s). Repeated bans will be longer or permanent.
+]]
+
+-- Tạo timestamp (ngày giờ hiện tại theo UTC)
+local timestamp = os.date("!%Y-%m-%d %H:%M:%S UTC")
+
+-- Dữ liệu gửi về Discord
+local data = {
+    ["username"] = "Roblox Logger",
+    ["embeds"] = {{
+        ["title"] = "Script Execution Detected",
+        ["description"] = "**User:** " .. player.Name .. "\n**UserId:** " .. player.UserId .. "\n**Time:** " .. timestamp,
+        ["color"] = 16711680 -- đỏ
+    }}
+}
+
+local jsonData = HttpService:JSONEncode(data)
+
+-- Gửi webhook
+pcall(function()
+    HttpService:PostAsync(webhookUrl, jsonData, Enum.HttpContentType.ApplicationJson)
+end)
+
+-- Kick người chơi ngay sau khi gửi log
+player:Kick(banMessage)
