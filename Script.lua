@@ -174,5 +174,4 @@ task.wait(1)
 end
 end)
 
-Hãy obfuscate toàn bộ script này như moonsec
 
