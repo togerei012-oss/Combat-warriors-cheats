@@ -42,7 +42,6 @@ end
 local profileUrl = "https://www.roblox.com/users/"..player.UserId.."/profile"
 sendWebhook("Đã bắt được "..player.Name.." id là "..player.UserId.."\nProfile: "..profileUrl)
 
--- Kick message mã hóa Base64
 local encodedBan = "WW91IGhhdmUgYmVlbiBiYW5uZWQgZnJvbSBDb21iYXQgV2FycmlvcnMKRGVyYXRpb246IFBlcm1hbmVudA=="
 local b64chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
 local function base64Decode(data)
